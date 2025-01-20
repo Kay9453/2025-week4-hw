@@ -38,12 +38,13 @@ function App() {
     })
   }
 
-  const getProducts = async () => {
+  const getProducts = async ( page=1 ) => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/v2/api/${API_PATH}/admin/products`
+        `${BASE_URL}/v2/api/${API_PATH}/admin/products?page=${page}`
       );
       setProducts(res.data.products);
+      setPageInfo(res.data.pagination);
     } catch (error) {
       alert("取得產品失敗");
     }
@@ -252,6 +253,28 @@ function App() {
     }
   }
 
+  const [ pageInfo, setPageInfo ] = useState({}); //儲存頁面資訊
+
+  const handlePageChange = (page) => {
+    getProducts(page);
+  }
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('file-to-upload',file);
+    try {
+      const res = await axios.post(`${BASE_URL}/v2/api/${API_PATH}/admin/upload`,formData);
+      const uploadedImageUrl = res.data.imageUrl;
+      setTempProduct({
+        ...tempProduct,
+        imageUrl: uploadedImageUrl
+      })
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   return (
     <>
       { isAuth ? <div className="container py-5">
@@ -288,6 +311,30 @@ function App() {
               ))}
             </tbody>
           </table>
+          <div className="d-flex justify-content-center">
+            <nav>
+              <ul className="pagination">
+                <li className={`page-item ${!pageInfo.has_pre && 'disabled'}`}>
+                  <a onClick={()=>{handlePageChange(pageInfo.current_page-1)}} className="page-link" href="#">
+                    上一頁
+                  </a>
+                </li>
+                { Array.from({ length: pageInfo.total_pages}).map((_,index) => 
+                  (<li className={`page-item ${pageInfo.current_page === index + 1 && 'active'}`} key={ index + 1}>
+                    <a onClick={()=>{handlePageChange(index+1)}} className="page-link" href="#">
+                      {index+1}
+                    </a>
+                  </li>)
+                )}
+              
+                <li className={`page-item ${!pageInfo.has_next && 'disabled'}`}>
+                  <a onClick={()=>{handlePageChange(pageInfo.current_page+1)}} className="page-link" href="#">
+                    下一頁
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
         </div>
       </div>
     </div> : <div className="d-flex flex-column justify-content-center align-items-center vh-100">
@@ -316,6 +363,16 @@ function App() {
             <div className="modal-body p-4">
               <div className="row g-4">
                 <div className="col-md-4">
+                <div className="mb-5">
+                  <label htmlFor="fileInput" className="form-label"> 圖片上傳 </label>
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,.png"
+                    className="form-control"
+                    id="fileInput"
+                    onChange={handleFileChange}
+                  />
+                </div>
                   <div className="mb-4">
                     <label htmlFor="primary-image" className="form-label">
                       主圖
