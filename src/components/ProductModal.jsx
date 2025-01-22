@@ -14,6 +14,7 @@ function ProductModal({
 }){
     
     const [modalData,setModalData] = useState(tempProduct);
+    // console.log(modalData);
 
     // 當 tempProduct 有更新時，把 modalData 一起更新
     useEffect(() => {
@@ -334,6 +335,15 @@ function ProductModal({
                     rows={4}
                     placeholder="請輸入說明內容"
                     ></textarea>
+                </div>
+                <div className={`mb-3 ${(modalData.avgRate === 0 || !modalData.avgRate) && 'd-none'}`}>
+                    <label htmlFor="rate" className="form-label">
+                        商品評價
+                    </label>
+                    <div className='d-flex'>
+                        <p className='pe-2'>{modalData.avgRate}</p>
+                        <span className='text-black-50'>({modalData.rateNum})</span>
+                    </div>
                 </div>
 
                 <div className="form-check">

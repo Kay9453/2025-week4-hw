@@ -17,7 +17,9 @@ const defaultModalState = {
     description: "",
     content: "",
     is_enabled: 0,
-    imagesUrl: [""]
+    imagesUrl: [""],
+    avgRate: 0,
+    rateNum: 0
 };
 
 function ProductPage({setIsAuth}){
